@@ -1283,7 +1283,7 @@ public class SpecificRecordClassGenerator {
           codeBlockBuilder
               .beginControlFlow("try")
               .addStatement("$L = in.readInt()", fieldName)
-              .nextControlFlow("catch (Exception e)")
+              .nextControlFlow("catch ($T e)", Exception.class)
               .addStatement("// If int decoding fails, try long decoding with bounds check")
               .addStatement("long $L = in.readLong()", tempIntVarName)
               .beginControlFlow("if ($L <= Integer.MAX_VALUE && $L >= Integer.MIN_VALUE)", tempIntVarName, tempIntVarName)
@@ -1307,7 +1307,7 @@ public class SpecificRecordClassGenerator {
               "temp" + Character.toUpperCase(cleanLongFieldName.charAt(0)) + cleanLongFieldName.substring(1);
           codeBlockBuilder.beginControlFlow("try")
               .addStatement("$L = in.readLong()", fieldName)
-              .nextControlFlow("catch (Exception e)")
+              .nextControlFlow("catch ($T e)", Exception.class)
               .addStatement("// If long decoding fails, try int decoding with conversion to long")
               .addStatement("int $L = in.readInt()", tempLongVarName)
               .addStatement("$L = (long) $L", fieldName, tempLongVarName)
