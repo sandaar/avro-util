@@ -675,7 +675,6 @@ public class SpecificRecordClassGenerator {
   private void addMixedNumericConversionConstructor(AvroRecordSchema recordSchema, SpecificRecordGenerationConfig config,
       TypeSpec.Builder classBuilder) {
     AvroJavaStringRepresentation defaultMethodStringRepresentation = config.getDefaultMethodStringRepresentation();
-    boolean disableStringTransform = !config.isUtf8EncodingEnabled();
     MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PUBLIC);
 
@@ -743,7 +742,7 @@ public class SpecificRecordClassGenerator {
       } else  {
         // For other fields, use their normal type
         handleField(constructorBuilder, field,
-            defaultMethodStringRepresentation, disableStringTransform);
+            defaultMethodStringRepresentation, !config.isUtf8EncodingEnabled());
       }
     }
     annotateDeprecatedCharSequenceConstructor(constructorBuilder, defaultMethodStringRepresentation, recordSchema);
@@ -1083,13 +1082,13 @@ public class SpecificRecordClassGenerator {
     if (fieldClass != null) {
       methodBuilder = MethodSpec
           .methodBuilder(getMethodNameForFieldWithPrefix("set", escapedFieldName))
-          .addModifiers(Modifier.PUBLIC);
+          .addModifiers(Modifier.PUBLIC)
+          .addStatement("validate(fields()[$L], value)", fieldIndex);
 
       if (fieldClass.equals(long.class)) {
         // If field is of type long, add method with int parameter
         methodBuilder
             .addParameter(TypeName.INT, "value")
-            .addStatement("validate(fields()[$L], value)", fieldIndex)
             .addStatement("this.$L = value", escapedFieldName);
 
       } else if (fieldClass.equals(int.class)) {
