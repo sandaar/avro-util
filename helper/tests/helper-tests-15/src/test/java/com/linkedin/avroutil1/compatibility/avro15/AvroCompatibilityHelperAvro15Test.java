@@ -187,84 +187,15 @@ public class AvroCompatibilityHelperAvro15Test {
   public void testLongToIntDemotion() throws IOException {
     LongRecord longRecord = new LongRecord();
     longRecord.field = 42L;
-    longRecord.unionField = 55L;
-    longRecord.arrayField = ImmutableList.of(100L, -200L);
-    longRecord.mapField = ImmutableMap.of("key1", 300L, "key2", -400L);
-    longRecord.unionArrayField = ImmutableList.of(99L, -199L);
-    longRecord.unionMapField = ImmutableMap.of("key1", 298L, "key2", 355L);
-    byte[] binary = toBinary(longRecord);
-
-    IntRecord intRecord = toSpecificRecord(binary, LongRecord.SCHEMA$, IntRecord.SCHEMA$);
-    Assert.assertEquals(intRecord.field, 42);
-    Assert.assertEquals(intRecord.unionField.intValue(), 55);
-    Assert.assertEquals(intRecord.arrayField, ImmutableList.of(100, -200));
-    Assert.assertEquals(intRecord.mapField, ImmutableMap.of(new Utf8("key1"), 300, new Utf8("key2"), -400));
-    Assert.assertEquals(intRecord.unionArrayField, ImmutableList.of(99, -199));
-    Assert.assertEquals(intRecord.unionMapField, ImmutableMap.of(new Utf8("key1"), 298, new Utf8("key2"), 355));
-
-    GenericRecord genericRecord = toGenericRecord(binary, LongRecord.SCHEMA$, IntRecord.SCHEMA$);
-    Assert.assertEquals(genericRecord.get("field"), 42);
-    Assert.assertEquals(genericRecord.get("unionField"), 55);
-    Assert.assertEquals(new ArrayList<>((GenericData.Array<Integer>) genericRecord.get("arrayField")), ImmutableList.of(100, -200));
-    Assert.assertEquals(genericRecord.get("mapField"), ImmutableMap.of(new Utf8("key1"), 300, new Utf8("key2"), -400));
-    Assert.assertEquals(new ArrayList<>((GenericData.Array<Integer>) genericRecord.get("unionArrayField")), ImmutableList.of(99, -199));
-    Assert.assertEquals(genericRecord.get("unionMapField"), ImmutableMap.of(new Utf8("key1"), 298, new Utf8("key2"), 355));
-  }
-
-  @Test
-  public void testLongToIntDemotionOutOfRange() throws IOException {
-    LongRecord longRecord = newLongRecord();
-    longRecord.field = (long) Integer.MAX_VALUE + 1L;
-    byte[] binary = toBinary(longRecord);
-
-    LongRecord longRecord2 = newLongRecord();
-    longRecord2.unionField = (long) Integer.MIN_VALUE - 1L;
-    byte[] binary2 = toBinary(longRecord2);
-
-    LongRecord longRecord3 = newLongRecord();
-    longRecord3.arrayField = ImmutableList.of((long) Integer.MAX_VALUE + 1L);
-    byte[] binary3 = toBinary(longRecord3);
-
-    LongRecord longRecord4 = newLongRecord();
-    longRecord4.mapField = ImmutableMap.of("haha", (long) Integer.MIN_VALUE - 1L);
-    byte[] binary4 = toBinary(longRecord4);
-
-    LongRecord longRecord5 = newLongRecord();
-    longRecord5.unionArrayField = ImmutableList.of((long) Integer.MAX_VALUE + 1L);
-    byte[] binary5 = toBinary(longRecord5);
-
-    LongRecord longRecord6 = newLongRecord();
-    longRecord6.unionMapField = ImmutableMap.of("haha", (long) Integer.MIN_VALUE - 1L);
-    byte[] binary6 = toBinary(longRecord6);
-
-    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-
-    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary2, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary2, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-
-    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary3, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary3, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-
-    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary4, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary4, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-
-    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary5, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary5, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-
-    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary6, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary6, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
-  }
-
-  private LongRecord newLongRecord() {
-    LongRecord longRecord = new LongRecord();
-    longRecord.field = 0L;
     longRecord.unionField = 0L;
     longRecord.arrayField = ImmutableList.of();
     longRecord.mapField = ImmutableMap.of();
     longRecord.unionArrayField = ImmutableList.of();
     longRecord.unionMapField = ImmutableMap.of();
-    return longRecord;
+    byte[] binary = toBinary(longRecord);
+
+    Assert.assertThrows(AvroTypeException.class, () -> toSpecificRecord(binary, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
+    Assert.assertThrows(AvroTypeException.class, () -> toGenericRecord(binary, LongRecord.SCHEMA$, IntRecord.SCHEMA$));
   }
 
   private byte[] toBinary(IndexedRecord record) throws IOException {
